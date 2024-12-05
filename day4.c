@@ -28,10 +28,22 @@ int main(int argc, char* argv[]) {
         array[i] = malloc(width * sizeof(char));
     }
 
-    gridScan(array, stdin);
+    gridScan(array, fp);
+
+    // for(int i = 0; i < length; i++) {
+    //     for(int j = 0; j < width; j++) {
+    //         printf("%c ", array[i][j]);
+    //     }
+    //     printf("\n");
+    // }
 
     int amount = xmasAppearTime(array, length, width);
     printf("\napears = %d times\n\n", amount);
+    
+    for(int i = 0; i < length; i++) {
+        free(array[i]);
+    }
+    free(array);
     return 0;
 }
 
@@ -67,9 +79,10 @@ bool xmasStraight(char** array, int length, int width, int indexI, int indexJ) {
     char str[5] = {'\0'};
     int xmasIndex = 0;
     for(int k = 0; k < 4; k++) {
-        if(indexJ >= width) return false;
-
-        array[indexI][indexJ] = str[xmasIndex];
+        if(indexJ >= width) {
+            return false;
+        }
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ++;
     }
@@ -83,7 +96,7 @@ bool xmasDown(char** array, int length, int width, int indexI, int indexJ) {
     for(int k = 0; k < 4; k++) {
         if(indexI >= length) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexI++;
     }
@@ -97,7 +110,7 @@ bool xmasBackwards(char** array, int length, int width, int indexI, int indexJ) 
     for(int k = 0; k < 4; k++) {
         if(indexJ < 0) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ--;
     }
@@ -111,7 +124,7 @@ bool xmasUp(char** array, int length, int width, int indexI, int indexJ) {
     for(int k = 0; k < 4; k++) {
         if(indexI < 0) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexI--;
     }
@@ -126,7 +139,7 @@ bool xmasDiagonalRightDown(char** array, int length, int width, int indexI, int 
         if(indexJ >= width) return false;
         if(indexI >= length) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ++;
         indexI++;
@@ -142,7 +155,7 @@ bool xmasDiagonalLeftDown(char** array, int length, int width, int indexI, int i
         if(indexJ < 0) return false;
         if(indexI >= length) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ--;
         indexI++;
@@ -158,7 +171,7 @@ bool xmasDiagonalLeftUp(char** array, int length, int width, int indexI, int ind
         if(indexJ < 0) return false;
         if(indexI < 0) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ--;
         indexI--;
@@ -174,7 +187,7 @@ bool xmasDiagonalRightUp(char** array, int length, int width, int indexI, int in
         if(indexJ >= width) return false;
         if(indexI < 0) return false;
 
-        array[indexI][indexJ] = str[xmasIndex];
+        str[xmasIndex] = array[indexI][indexJ];
         xmasIndex++;
         indexJ++;
         indexI--;
@@ -185,6 +198,7 @@ bool xmasDiagonalRightUp(char** array, int length, int width, int indexI, int in
 
 
 void gridScan(char** array, FILE* fp) {
+    fseek(fp, 0, SEEK_SET);
     char str[500];
     int level = 0;
     while(fgets(str, 500, fp)) {
@@ -196,12 +210,14 @@ void gridScan(char** array, FILE* fp) {
 }
 
 int gridWidth(FILE *fp) {
+    fseek(fp, 0, SEEK_SET);
     char str[500];
     fscanf(fp, "%s", str);
     return strlen(str);
 }
 
 int gridLength(FILE *fp) {
+    fseek(fp, 0, SEEK_SET);
     char str[500];
     int length = 0;
     while(fgets(str, 500, fp)) {
