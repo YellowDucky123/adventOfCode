@@ -30,13 +30,6 @@ int main(int argc, char* argv[]) {
 
     gridScan(array, fp);
 
-    // for(int i = 0; i < length; i++) {
-    //     for(int j = 0; j < width; j++) {
-    //         printf("%c ", array[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
     int amount = xmasAppearTime(array, length, width);
     printf("\napears = %d times\n\n", amount);
     
