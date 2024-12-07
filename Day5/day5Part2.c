@@ -10,6 +10,8 @@ bool updateValidation(struct node* table, int *updates, int size);
 int isNumberBefore(struct node* table, int num1, int num2);
 struct node* insertList(struct node* head, int v1, int v2);
 void freeList(struct node* head);
+void moveData(int *update, int size, int index1, int moveTo);
+void updateFix(int *update, int size, struct node* table);
 
 struct node {
     int v1;
@@ -54,13 +56,38 @@ int middleNumberLine(FILE *fp, struct node* table) {
         
         int *updates = malloc(length * sizeof(int));
         int size = updateArrayFill(updates, str);
-        if(updateValidation(table, updates, length)) {
+
+        if(!updateValidation(table, updates, length)) {
+            updateFix(updates, size, table);
             count += updates[size/2];
         }
 
         free(updates);
     }
+
     return count;
+}
+
+void updateFix(int *update, int size, struct node* table) {
+    for(int i = 0; i < size; i++) {
+        int j = i + 1;
+        while(j < size) {
+            if(isNumberBefore(table, update[j], update[i])) {
+                moveData(update, size, j, i);
+            }
+            else {
+                j++;
+            }
+        }
+    }
+}
+
+void moveData(int *update, int size, int index1, int moveTo) {
+    int tmp = update[index1];
+    for(int i = index1; i > moveTo; i--) {
+        update[i] = update[i - 1];
+    }
+    update[moveTo] = tmp;
 }
 
 int updateArrayFill(int *update, char* string) {
