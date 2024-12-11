@@ -13,7 +13,7 @@ class myClass {
 int gridWidth(ifstream& fp);
 int gridLength(ifstream &fp);
 void gridScan(int** grid, ifstream& fp);
-int bfs(int** grid, myClass src, int length, int width);
+void DFSRec(int** grid, myClass src, int length, int width, int *count);
 vector<myClass> neighbours(myClass v, int length, int width);
 
 int main() {
@@ -39,15 +39,18 @@ int main() {
     }
 
     int sum = 0;
+    
     for(int i = 0; i < length; i++) {
         for(int j = 0; j < width; j++) {
             if(grid[i][j] == 0) {
-                sum += bfs(grid, {i, j}, length, width);
+                int count = 0;
+                DFSRec(grid, {i, j}, length, width, &count);
+                sum += count;
             }
         }
     }
 
-    cout << endl << "sum of hike trail is " << sum << endl << endl;
+    cout << endl << "sum of hike rating is " << sum << endl << endl;
 
     for (int i = 0; i < length; ++i)
         delete [] grid[i];
@@ -65,40 +68,23 @@ void gridScan(int** grid, ifstream& fp) {
     }
 }
 
-int bfs(int** grid, myClass src, int length, int width) {
-    int count = 0;
-    queue<myClass> q;
-
-    vector<vector<bool>> visited(length, vector<bool>(width, false));
-
-    q.push({src.row, src.col});
-    visited[src.row][src.col] = true;
-
-    while(!q.empty()) {
-        myClass v = q.front();
-        q.pop();
-
-        if(grid[v.row][v.col] == 9) {
-            count++;
-        }
-
-        vector<myClass> nghbrs = neighbours(v, length, width);
-        for(const myClass& it : nghbrs) {
-            if(visited[it.row][it.col]) {
-                continue;
-            }
-            if((grid[it.row][it.col] - grid[v.row][v.col]) > 1 ||
-               (grid[it.row][it.col] - grid[v.row][v.col]) == 0 || 
-               (grid[it.row][it.col] - grid[v.row][v.col]) < 0
-            ) {
-                continue;
-            }
-            visited[it.row][it.col] = true;
-            q.push({it.row, it.col});
-        }
+void DFSRec(int** grid, myClass src, int length, int width, int *count){
+    if(grid[src.row][src.col] == 9) {
+        *count = *count + 1;;
+        return;
     }
-
-    return count;
+    // Recursively visit all adjacent vertices
+    // that are not visited yet
+    vector<myClass> nghbir = neighbours(src, length, width);
+    for(const myClass& it : nghbir) {
+        if((grid[it.row][it.col] - grid[src.row][src.col]) > 1 ||
+            (grid[it.row][it.col] - grid[src.row][src.col]) == 0 || 
+            (grid[it.row][it.col] - grid[src.row][src.col]) < 0
+        ) {
+            continue;
+        }
+        DFSRec(grid, it, length, width, count);
+    }
 }
 
 vector<myClass> neighbours(myClass v, int length, int width) {
