@@ -9,10 +9,10 @@
 int mapWidth(FILE* fp);
 int mapLength(FILE* fp);
 int dfs(char** map, int width, int length);
-void dfsRec(char** map, bool** visited, bool** fenceMapHorizontal, bool** fenceMapVertical, int vRow, int vCol, int width, int length, char plot, int* plotCount);
+void dfsRec(char** map, bool** visited, int** fenceMapHorizontal, int** fenceMapVertical, int vRow, int vCol, int width, int length, char plot, int* plotCount);
 int neighbours(char** map, int nghbir[4][3], int vRow, int vCol, int width, int length);
 void mapScan(FILE* fp, char** map, int width, int length);
-int fenceSides(bool** fenceMapHorizontal, bool** fenceMapVertical, int width, int length);
+int fenceSides(int** fenceMapHorizontal, int** fenceMapVertical, int width, int length);
 
 int main(int argc, char *argv[]) {
 
@@ -52,35 +52,40 @@ int dfs(char** map, int width, int length) {
         for(int j = 0; j < width; j++) {
             if(visited[i][j]) continue;
 
-            bool** fenceMapHorizontal = malloc((length + 2) * sizeof(bool*));
+            int** fenceMapHorizontal = malloc((length + 2) * sizeof(int*)); // make horizontal map
             for(int i = 0; i < length + 2; i++) {
-                fenceMapHorizontal[i] = calloc((width + 2), sizeof(bool));
+                fenceMapHorizontal[i] = calloc((width + 2), sizeof(int));
             }
 
-            bool** fenceMapVertical = malloc((length + 2) * sizeof(bool*));
+            int** fenceMapVertical = malloc((length + 2) * sizeof(int*));   // make vertical map
             for(int i = 0; i < length + 2; i++) {
-                fenceMapVertical[i] = calloc((width + 2), sizeof(bool));
+                fenceMapVertical[i] = calloc((width + 2), sizeof(int));
             }
 
             int plotCount = 0;
             dfsRec(map, visited, fenceMapHorizontal, fenceMapVertical, i, j, width, length, map[i][j], &plotCount);
 
-            for(int i = 0; i < length + 2; i++) {
-                for(int j = 0; j < width + 2; j++) {
-                    if(fenceMapHorizontal[i][j]) printf("T ");
-                    else printf(". ");
-                }
-                printf("\n");
-            }
+            // for(int i = 0; i < length + 2; i++) {
+            //     for(int j = 0; j < width + 2; j++) {
+            //         if(fenceMapHorizontal[i][j] > 0) printf("%d ", fenceMapHorizontal[i][j]);
+            //         if(fenceMapVertical[i][j] > 0) printf("%d ", fenceMapVertical[i][j]);
+            //         else printf(". ");
+            //     }
+            //     printf("i  is %d", i);
+            //     printf("\n");
+            // }
+            // printf("\n\n\n");
+    
             
             int fenceSide = fenceSides(fenceMapHorizontal, fenceMapVertical, width + 2, length + 2);
+            printf("\nfence sides: %d\nplot count: %d\n", fenceSide, plotCount);
 
-            for(int i = 0; i < length + 2; i++) {
+            for(int i = 0; i < length + 2; i++) {   //free memory
                 free(fenceMapHorizontal[i]);
             }
             free(fenceMapHorizontal);
 
-            for(int i = 0; i < length + 2; i++) {
+            for(int i = 0; i < length + 2; i++) {   //free memory
                 free(fenceMapVertical[i]);
             }
             free(fenceMapVertical);
@@ -97,15 +102,25 @@ int dfs(char** map, int width, int length) {
     return cost;
 }
 
-int fenceSides(bool** fenceMapHorizontal, bool** fenceMapVertical, int width, int length) {
+int fenceSides(int** fenceMapHorizontal, int** fenceMapVertical, int width, int length) {
     int sides = 0;
 
     for(int i = 0; i < length; i++) {
         for(int j = 0; j < width; j++) {
-            if(fenceMapHorizontal[i][j]) {
+            bool moreThanOne = false;
+            if(fenceMapHorizontal[i][j] > 0) {
                 sides++;
-                while(j < width && fenceMapHorizontal[i][j]) {
+                // printf("plus side\n");
+                while(j < width && fenceMapHorizontal[i][j] > 0) {
+                    if(fenceMapHorizontal[i][j] > 1) {
+                        moreThanOne = true;
+                    }
+                    fenceMapHorizontal[i][j]--;
                     j++;
+                }
+                
+                if(moreThanOne) {
+                    i--;
                 }
             }
         }
@@ -113,10 +128,20 @@ int fenceSides(bool** fenceMapHorizontal, bool** fenceMapVertical, int width, in
 
     for(int i = 0; i < width; i++) {
         for(int j = 0; j < length; j++) {
-            if(fenceMapVertical[j][i]) {
+            bool moreThanOne = false;
+            if(fenceMapVertical[j][i] > 0) {
                 sides++;
-                while(j < length && fenceMapVertical[j][i]) {
+                // printf("plus side\n");
+                while(j < length && fenceMapVertical[j][i] > 0) {
+                    if(fenceMapVertical[j][i] > 1) {
+                        moreThanOne = true;
+                    }
+                    fenceMapVertical[j][i]--;
                     j++;
+                }
+
+                if(moreThanOne) {
+                    i--;
                 }
             }
         }
@@ -125,7 +150,7 @@ int fenceSides(bool** fenceMapHorizontal, bool** fenceMapVertical, int width, in
     return sides;
 }
 
-void dfsRec(char** map, bool** visited, bool** fenceMapHorizontal, bool** fenceMapVertical, int vRow, int vCol, int width, int length, char plot, int* plotCount) {
+void dfsRec(char** map, bool** visited, int** fenceMapHorizontal, int** fenceMapVertical, int vRow, int vCol, int width, int length, char plot, int* plotCount) {
     *plotCount = *plotCount + 1;
     
     visited[vRow][vCol] = true;
@@ -136,20 +161,20 @@ void dfsRec(char** map, bool** visited, bool** fenceMapHorizontal, bool** fenceM
     for(int i = 0; i < size; i++) {
         if(nghbir[i][0] < 0 || nghbir[i][1] < 0 || nghbir[i][0] >= length || nghbir[i][1] >= width) {
             if(nghbir[i][2] == H) {
-                fenceMapHorizontal[nghbir[i][0] + 1][nghbir[i][1] + 1] = true;
+                ++fenceMapHorizontal[nghbir[i][0] + 1][nghbir[i][1] + 1];
             }
             else {
-                fenceMapVertical[nghbir[i][0] + 1][nghbir[i][1] + 1] = true;
+                ++fenceMapVertical[nghbir[i][0] + 1][nghbir[i][1] + 1];
             }
 
             continue;
         }
         else if(map[nghbir[i][0]][nghbir[i][1]] != plot) {
             if(nghbir[i][2] == H) {
-                fenceMapHorizontal[nghbir[i][0] + 1][nghbir[i][1] + 1] = true;
+                ++fenceMapHorizontal[nghbir[i][0] + 1][nghbir[i][1] + 1];
             }
             else {
-                fenceMapVertical[nghbir[i][0] + 1][nghbir[i][1] + 1] = true;
+                ++fenceMapVertical[nghbir[i][0] + 1][nghbir[i][1] + 1];
             }
 
             continue;
@@ -170,19 +195,13 @@ int neighbours(char** map, int nghbir[4][3], int vRow, int vCol, int width, int 
         nghbir[i][0] = vRow + directions[i][0];
         nghbir[i][1] = vCol + directions[i][1];
 
-        if(i == 0) {
-            nghbir[i][2] = H;
-        }
-        else if(i == 1) {
-            nghbir[i][2] = H;
-        }
-        else if(i == 2) {
+        if(i >= 2) {
             nghbir[i][2] = V;
         }
         else {
-            nghbir[i][2] = V;
+            nghbir[i][2] = H;
         }
-        
+                
         size++;
     }
 
