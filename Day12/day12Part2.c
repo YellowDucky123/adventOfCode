@@ -63,19 +63,7 @@ int dfs(char** map, int width, int length) {
             }
 
             int plotCount = 0;
-            dfsRec(map, visited, fenceMapHorizontal, fenceMapVertical, i, j, width, length, map[i][j], &plotCount);
-
-            // for(int i = 0; i < length + 2; i++) {
-            //     for(int j = 0; j < width + 2; j++) {
-            //         if(fenceMapHorizontal[i][j] > 0) printf("%d ", fenceMapHorizontal[i][j]);
-            //         if(fenceMapVertical[i][j] > 0) printf("%d ", fenceMapVertical[i][j]);
-            //         else printf(". ");
-            //     }
-            //     printf("i  is %d", i);
-            //     printf("\n");
-            // }
-            // printf("\n\n\n");
-    
+            dfsRec(map, visited, fenceMapHorizontal, fenceMapVertical, i, j, width, length, map[i][j], &plotCount);  
             
             int fenceSide = fenceSides(fenceMapHorizontal, fenceMapVertical, width + 2, length + 2);
             printf("\nfence sides: %d\nplot count: %d\n", fenceSide, plotCount);
