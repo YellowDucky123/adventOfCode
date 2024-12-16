@@ -223,15 +223,9 @@ int gridLength(std::ifstream& fp) {
 int gridWidth(std::ifstream& fp) {
     std::string str;
     std::getline(fp, str);
-    int length = str.length() + 2;
-    for(int i = 0; i < str.length(); i++) {
-        if(str[i] == 'O') {
-            length + 1;
-        }
-    }
 
     fp.clear();
     fp.seekg(0, std::ios::beg);
 
-    return length;
+    return str.length();
 }
